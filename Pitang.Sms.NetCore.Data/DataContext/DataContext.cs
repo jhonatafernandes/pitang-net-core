@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using sms_pitang_netcore.Models;
+using Pitang.Sms.NetCore.Entities.Models;
 
-namespace sms_pitang_netcore.Data
+namespace Pitang.Sms.NetCore.Data.DataContext
 {
     public class DataContext : DbContext
     {

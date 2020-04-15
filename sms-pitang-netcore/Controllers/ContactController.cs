@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using sms_pitang_netcore.Models;
-using sms_pitang_netcore.Data;
+using Pitang.Sms.NetCore.Entities.Models;
+using Pitang.Sms.NetCore.Data.DataContext;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
@@ -12,6 +12,7 @@ namespace sms_pitang_netcore.Controllers
 {
 
     [Route("contacts")]
+    [ApiController]
     public class ContactController : ControllerBase
     {
 

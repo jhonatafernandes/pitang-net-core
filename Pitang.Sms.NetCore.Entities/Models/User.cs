@@ -1,9 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace sms_pitang_netcore.Models
+namespace Pitang.Sms.NetCore.Entities.Models
 {
     public class User
     {
+        public User()
+        {
+            this.Role = "usuario";
+        }
 
         [Key]
         public int Id { get; set; }

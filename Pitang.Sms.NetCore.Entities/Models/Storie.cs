@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace sms_pitang_netcore.Models
+namespace Pitang.Sms.NetCore.Entities.Models
 {
     public class Storie
     {
