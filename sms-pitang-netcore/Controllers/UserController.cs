@@ -23,12 +23,13 @@ namespace sms_pitang_netcore.Controllers
         [Route("")]
         //[Authorize(Roles ="admin")]
         public async Task<ActionResult<List<User>>> Get(
-            [FromServices] DataContext contexto
+            [FromServices] DataContext contexto,
+            [FromServices] IUserService userService
              )
         {
             try
             {
-                var users = await UserService.GetAllUsers(contexto);
+                var users = await userService.GetAllUsers(contexto);
                 return Ok(users);
 
             }
@@ -46,11 +47,13 @@ namespace sms_pitang_netcore.Controllers
         //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<User>> GetById(
             int id,
-            [FromServices] DataContext context)
+            [FromServices] DataContext context,
+            [FromServices] IUserService userService
+            )
         {
             try
             {
-                var user = await UserService.GetUser(context, id);
+                var user = await userService.GetUser(context, id);
                 if (user == null)
                     return NotFound(new { message = "Usuário não encontrado" });
 
@@ -69,24 +72,23 @@ namespace sms_pitang_netcore.Controllers
         //[AllowAnonymous]
         public async Task<ActionResult<User>> Post(
             [FromBody] User model,
-            [FromServices] DataContext context
+            [FromServices] DataContext context,
+            [FromServices] IUserService userService
             )
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+           
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                context.Users.Add(model);
-                await context.SaveChangesAsync();
-                return Ok(model);
+            var postUser = await userService.PostUser(context, model);
 
-            }
-            catch
+            if(postUser == null)
             {
                 return BadRequest(new { message = "Não foi possível criar o usuário" });
-
             }
+            return Ok(model);
+
+          
         }
 
         [HttpPut]
@@ -94,12 +96,14 @@ namespace sms_pitang_netcore.Controllers
         //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<User>> Put(
            int id,
-           [FromBody]User model,
-           [FromServices] DataContext context)
+           [FromServices] DataContext context,
+           [FromBody] User model,
+           [FromServices] IUserService userService)
         {
 
-
-            if (id != model.Id)
+        
+            var user = await userService.GetUser(context, id);
+            if (user == null)
             {
                 return NotFound(new { message = "Usuário não encontrado!" });
             }
@@ -107,43 +111,29 @@ namespace sms_pitang_netcore.Controllers
             {
                 return BadRequest(ModelState);
             }
+            
 
-            try
+            var putUser = await userService.PutUser(context, model);
+
+            if(putUser != null)
             {
-                context.Entry<User>(model).State = EntityState.Modified;
-                await context.SaveChangesAsync();
                 return Ok(model);
-
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return BadRequest(new { message = "Uma alteração já está sendo realizada" });
-            }
-            catch
-            {
-                return BadRequest(new { message = "Não foi possível alterar o usuário." });
             }
 
-
+            return BadRequest(new { message = "Não foi possível alterar o usuário." });
 
         }
-
-
-
-
 
         [HttpPost]
         [Route("login")]
         [AllowAnonymous]
         public async Task<ActionResult<dynamic>> Authenticate(
             [FromServices] DataContext context,
-            [FromBody] User model)
+            [FromBody] User model,
+            [FromServices] IUserService userService)
         {
 
-            var user = await context.Users
-                    .AsNoTracking()
-                    .Where(x => x.Username == model.Username && x.Password == model.Password)
-                    .FirstOrDefaultAsync();
+            var user = await userService.PostLoginUser(context, model);
 
             if (user == null)
             {
@@ -164,25 +154,24 @@ namespace sms_pitang_netcore.Controllers
         //[Authorize(Roles = "admin")]
         public async Task<ActionResult<User>> Delete(
             int id,
-            [FromServices] DataContext context
+            [FromServices] DataContext context,
+            [FromServices] IUserService userService
             )
         {
-            var user = await context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var user = await userService.GetUser(context, id);
+
             if (user == null)
+            {
                 return NotFound(new { message = "Usuário não encontrado" });
-
-            try
-            {
-                context.Users.Remove(user);
-                await context.SaveChangesAsync();
-
-                return Ok(new { message = "Usuário deletado com sucesso!" });
             }
-            catch
-            {
 
-                return BadRequest(new { message = "Não foi possível excluir o usuário." });
+            var deleteUser = await userService.DeleteUser(context, user);
+
+            if (deleteUser.okMessage)
+            {
+                return Ok(deleteUser);
             }
+            return BadRequest(deleteUser);
 
         }
 

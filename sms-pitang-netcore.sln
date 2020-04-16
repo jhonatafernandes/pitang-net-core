@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pitang.Sms.NetCore.Entities
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pitang.Sms.NetCore.Data", "Pitang.Sms.NetCore.Data\Pitang.Sms.NetCore.Data.csproj", "{613B93A3-A72C-46FB-B103-04F5E9A2515D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pitang.Sms.NetCore.Services", "Pitang.Sms.NetCore.Services\Pitang.Sms.NetCore.Services.csproj", "{75014DD1-17AD-4177-B90A-9C01015279FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pitang.Sms.NetCore.Auth", "Pitang.Sms.NetCore.Auth\Pitang.Sms.NetCore.Auth.csproj", "{77847465-9E4D-44AD-9599-D68E4F1B4E3C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pitang.Sms.NetCore.Auth", "Pitang.Sms.NetCore.Auth\Pitang.Sms.NetCore.Auth.csproj", "{77847465-9E4D-44AD-9599-D68E4F1B4E3C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pitang.Sms.NetCore.Services", "ClassLibrary1\Pitang.Sms.NetCore.Services.csproj", "{35C1E4E9-ECF2-4579-9E1D-8EDA2C7C678B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,14 +33,14 @@ Global
 		{613B93A3-A72C-46FB-B103-04F5E9A2515D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{613B93A3-A72C-46FB-B103-04F5E9A2515D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{613B93A3-A72C-46FB-B103-04F5E9A2515D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{75014DD1-17AD-4177-B90A-9C01015279FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{75014DD1-17AD-4177-B90A-9C01015279FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{75014DD1-17AD-4177-B90A-9C01015279FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{75014DD1-17AD-4177-B90A-9C01015279FA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{77847465-9E4D-44AD-9599-D68E4F1B4E3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{77847465-9E4D-44AD-9599-D68E4F1B4E3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77847465-9E4D-44AD-9599-D68E4F1B4E3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77847465-9E4D-44AD-9599-D68E4F1B4E3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35C1E4E9-ECF2-4579-9E1D-8EDA2C7C678B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35C1E4E9-ECF2-4579-9E1D-8EDA2C7C678B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35C1E4E9-ECF2-4579-9E1D-8EDA2C7C678B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35C1E4E9-ECF2-4579-9E1D-8EDA2C7C678B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,8 +48,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{86B66D58-DC60-48F0-A786-ECC0265BF83A} = {714FC8BE-D99D-4C7F-9601-197FFBAB6C55}
 		{613B93A3-A72C-46FB-B103-04F5E9A2515D} = {714FC8BE-D99D-4C7F-9601-197FFBAB6C55}
-		{75014DD1-17AD-4177-B90A-9C01015279FA} = {714FC8BE-D99D-4C7F-9601-197FFBAB6C55}
 		{77847465-9E4D-44AD-9599-D68E4F1B4E3C} = {714FC8BE-D99D-4C7F-9601-197FFBAB6C55}
+		{35C1E4E9-ECF2-4579-9E1D-8EDA2C7C678B} = {714FC8BE-D99D-4C7F-9601-197FFBAB6C55}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6427518C-F5FD-43F0-86C4-EE98B3C08076}

@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Pitang.Sms.NetCore.Auth;
 using Pitang.Sms.NetCore.Data.DataContext;
+using Pitang.Sms.NetCore.Services;
 
 namespace sms_pitang_netcore
 {
@@ -32,6 +33,8 @@ namespace sms_pitang_netcore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddScoped<IUserService, UserService>();
 
 
             var key = Encoding.ASCII.GetBytes(Settings.Secret);
@@ -53,10 +56,6 @@ namespace sms_pitang_netcore
 
                 };
             });
-
-
-
-
 
             //services.AddDbContext<DataContext>(opt => opt.UseInMemoryDatabase("Database"));
             services.AddDbContext<DataContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("connectionString"), b => b.MigrationsAssembly("sms-pitang-netcore")));
