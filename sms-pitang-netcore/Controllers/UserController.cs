@@ -27,16 +27,16 @@ namespace sms_pitang_netcore.Controllers
             [FromServices] IUserService userService
              )
         {
-            try
-            {
-                var users = await userService.GetAllUsers(contexto);
-                return Ok(users);
+            
+            var contacts = await userService.GetAllUsers(contexto);
 
-            }
-            catch
+            if(contacts == null)
             {
-                return BadRequest(new { message = "Não foi possível buscar os usuários" });
+                return NotFound(new { message = "Não há contatos cadastrados" });
             }
+            return Ok(contacts);
+         
+          
 
         }
 

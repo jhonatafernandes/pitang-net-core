@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using Pitang.Sms.NetCore.Auth;
 using Pitang.Sms.NetCore.Data.DataContext;
 using Pitang.Sms.NetCore.Services;
+using Pitang.Sms.NetCore.Services.Impl;
 
 namespace sms_pitang_netcore
 {
@@ -35,6 +36,10 @@ namespace sms_pitang_netcore
             services.AddControllers();
 
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IContactService, ContactService>();
+            services.AddScoped<IStorieService, StorieService>();
+            services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<IHistoricPasswordService, HistoricPasswordService>();
 
 
             var key = Encoding.ASCII.GetBytes(Settings.Secret);

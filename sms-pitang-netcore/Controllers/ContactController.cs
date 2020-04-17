@@ -7,6 +7,7 @@ using Pitang.Sms.NetCore.Entities.Models;
 using Pitang.Sms.NetCore.Data.DataContext;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using Pitang.Sms.NetCore.Services;
 
 namespace sms_pitang_netcore.Controllers
 {
@@ -18,19 +19,22 @@ namespace sms_pitang_netcore.Controllers
 
         [HttpGet]
         [Route("")]
+        //[Authorize(Roles ="admin")]
         public async Task<ActionResult<List<Contact>>> Get(
-            [FromServices] DataContext context)
+            [FromServices] DataContext contexto,
+            [FromServices] IContactService contactService
+             )
         {
-            try
-            {
-                var contacts = await context.Contacts.AsNoTracking().ToListAsync();
-                return Ok(contacts);
 
-            }
-            catch
+            var contacts = await contactService.GetAllContacts(contexto);
+
+            if (contacts == null)
             {
-                return BadRequest(new { message = "Não foi possível buscar os contatos" });
+                return NotFound(new { message = "Não há contatos cadastrados" });
             }
+            return Ok(contacts);
+
+
 
         }
 
@@ -38,141 +42,101 @@ namespace sms_pitang_netcore.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
+        //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<Contact>> GetById(
             int id,
-            [FromServices] DataContext context)
+            [FromServices] DataContext context,
+            [FromServices] IContactService contactService
+            )
         {
-            try
-            {
-                var contact = await context.Contacts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-                if (contact == null)
-                    return NotFound(new { message = "Contato não encontrado" });
+            
+            var contact = await contactService.GetContact(context, id);
+            if (contact == null)
+                return NotFound(new { message = "Contato não encontrado" });
 
-                return Ok(contact);
+            return Ok(contact);
 
-            }
-            catch
-            {
-                return BadRequest(new { message = "Não foi possível retornar o contato" });
-            }
+            
 
         }
 
         [HttpPost]
         [Route("")]
+        //[AllowAnonymous]
         public async Task<ActionResult<Contact>> Post(
             [FromBody] Contact model,
-            [FromServices] DataContext context
+            [FromServices] DataContext context,
+            [FromServices] IContactService contactService
             )
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
 
-                context.Contacts.Add(model);
-                await context.SaveChangesAsync();
-                return Ok(model);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            }
-            catch
+            var postContact = await contactService.PostContact(context, model);
+
+            if (postContact == null)
             {
                 return BadRequest(new { message = "Não foi possível criar o contato" });
-
             }
+            return Ok(model);
+
+
         }
 
         [HttpPut]
         [Route("{id:int}")]
+        //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<Contact>> Put(
            int id,
-           [FromBody]Contact model,
-           [FromServices] DataContext context)
+           [FromServices] DataContext context,
+           [FromBody] Contact model,
+           [FromServices] IContactService contactService)
         {
 
 
-            if (id != model.Id)
+            var contact = await contactService.GetContact(context, id);
+            if (contact == null)
             {
-                return NotFound(new { message = "Contato não encontrado!" });
+                return NotFound(new { message = "contato não encontrado!" });
             }
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            try
+            var putContact = await contactService.PutContact(context, model);
+            if (putContact != null)
             {
-                context.Entry<Contact>(model).State = EntityState.Modified;
-                await context.SaveChangesAsync();
                 return Ok(model);
-
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return BadRequest(new { message = "Uma alteração já está sendo realizada" });
-            }
-            catch
-            {
-                return BadRequest(new { message = "Não foi possível alterar o contato." });
             }
 
-
+            return BadRequest(new { message = "Não foi possível alterar o contato." });
 
         }
 
-
-
-
-
-        /*[HttpPost]
-        [Route("login")]
-        public async Task<ActionResult<dynamic>> Authenticate(
-            [FromServices] DataContext context,
-            [FromBody] Contact model)
-        {
-
-            var Contact = await context.contacts
-                    .AsNoTracking()
-                    .Where(x => x.Contactname == model.Contactname && x.Password == model.Password)
-                    .FirstOrDefaultAsync();
-
-            if (Contact == null)
-            {
-                return NotFound(new { message = "Usuário ou senha inválidos" });
-            }
-
-            var token = TokenService.GenerateToken(Contact);
-            return new
-            {
-                Contact = Contact,
-                token = token
-            };
-
-        }*/
-
         [HttpDelete]
         [Route("{id:int}")]
+        //[Authorize(Roles = "admin")]
         public async Task<ActionResult<Contact>> Delete(
             int id,
-            [FromServices] DataContext context
+            [FromServices] DataContext context,
+            [FromServices] IContactService contactService
             )
         {
-            var contact = await context.Contacts.FirstOrDefaultAsync(x => x.Id == id);
+            var contact = await contactService.GetContact(context, id);
+
             if (contact == null)
+            {
                 return NotFound(new { message = "Contato não encontrado" });
-
-            try
-            {
-                context.Contacts.Remove(contact);
-                await context.SaveChangesAsync();
-
-                return Ok(new { message = "Contato deletado com sucesso!" });
             }
-            catch
-            {
 
-                return BadRequest(new { message = "Não foi possível excluir o contato." });
+            var deleteContact = await contactService.DeleteContact(context, contact);
+
+            if (deleteContact.okMessage)
+            {
+                return Ok(deleteContact);
             }
+            return BadRequest(deleteContact);
 
         }
 

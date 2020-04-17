@@ -7,6 +7,7 @@ using Pitang.Sms.NetCore.Entities.Models;
 using Pitang.Sms.NetCore.Data.DataContext;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using Pitang.Sms.NetCore.Services;
 
 namespace sms_pitang_netcore.Controllers
 {
@@ -18,19 +19,22 @@ namespace sms_pitang_netcore.Controllers
 
         [HttpGet]
         [Route("")]
+        //[Authorize(Roles ="admin")]
         public async Task<ActionResult<List<Storie>>> Get(
-            [FromServices] DataContext context)
+            [FromServices] DataContext contexto,
+            [FromServices] IStorieService storieService
+             )
         {
-            try
-            {
-                var stories = await context.Stories.AsNoTracking().ToListAsync();
-                return Ok(stories);
 
-            }
-            catch
+            var stories = await storieService.GetAllStories(contexto);
+
+            if (stories == null)
             {
-                return BadRequest(new { message = "Não foi possível buscar os stories" });
+                return NotFound(new { message = "Não há stories cadastrados" });
             }
+            return Ok(stories);
+
+
 
         }
 
@@ -38,141 +42,101 @@ namespace sms_pitang_netcore.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
+        //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<Storie>> GetById(
             int id,
-            [FromServices] DataContext context)
+            [FromServices] DataContext context,
+            [FromServices] IStorieService storieService
+            )
         {
-            try
-            {
-                var storie = await context.Stories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-                if (storie == null)
-                    return NotFound(new { message = "Storie não encontrado" });
 
-                return Ok(storie);
+            var storie = await storieService.GetStorie(context, id);
+            if (storie == null)
+                return NotFound(new { message = "Contato não encontrado" });
 
-            }
-            catch
-            {
-                return BadRequest(new { message = "Não foi possível retornar o storie" });
-            }
+            return Ok(storie);
+
+
 
         }
 
         [HttpPost]
         [Route("")]
+        //[AllowAnonymous]
         public async Task<ActionResult<Storie>> Post(
             [FromBody] Storie model,
-            [FromServices] DataContext context
+            [FromServices] DataContext context,
+            [FromServices] IStorieService storieService
             )
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
 
-                context.Stories.Add(model);
-                await context.SaveChangesAsync();
-                return Ok(model);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            }
-            catch
+            var postStorie = await storieService.PostStorie(context, model);
+
+            if (postStorie == null)
             {
                 return BadRequest(new { message = "Não foi possível criar o storie" });
-
             }
+            return Ok(model);
+
+
         }
 
         [HttpPut]
         [Route("{id:int}")]
+        //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<Storie>> Put(
            int id,
-           [FromBody]Storie model,
-           [FromServices] DataContext context)
+           [FromServices] DataContext context,
+           [FromBody] Storie model,
+           [FromServices] IStorieService storieService)
         {
 
 
-            if (id != model.Id)
+            var storie = await storieService.GetStorie(context, id);
+            if (storie == null)
             {
-                return NotFound(new { message = "Storie não encontrado!" });
+                return NotFound(new { message = "storie não encontrado!" });
             }
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            try
+            var putStorie = await storieService.PutStorie(context, model);
+            if (putStorie != null)
             {
-                context.Entry<Storie>(model).State = EntityState.Modified;
-                await context.SaveChangesAsync();
                 return Ok(model);
-
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return BadRequest(new { message = "Uma alteração já está sendo realizada" });
-            }
-            catch
-            {
-                return BadRequest(new { message = "Não foi possível alterar o storie." });
             }
 
-
+            return BadRequest(new { message = "Não foi possível alterar o storie." });
 
         }
 
-
-
-
-
-        /*[HttpPost]
-        [Route("login")]
-        public async Task<ActionResult<dynamic>> Authenticate(
-            [FromServices] DataContext context,
-            [FromBody] Storie model)
-        {
-
-            var Storie = await context.stories
-                    .AsNoTracking()
-                    .Where(x => x.Contactname == model.Contactname && x.Password == model.Password)
-                    .FirstOrDefaultAsync();
-
-            if (Storie == null)
-            {
-                return NotFound(new { message = "Usuário ou senha inválidos" });
-            }
-
-            var token = TokenService.GenerateToken(Storie);
-            return new
-            {
-                Storie = Storie,
-                token = token
-            };
-
-        }*/
-
         [HttpDelete]
         [Route("{id:int}")]
+        //[Authorize(Roles = "admin")]
         public async Task<ActionResult<Storie>> Delete(
             int id,
-            [FromServices] DataContext context
+            [FromServices] DataContext context,
+            [FromServices] IStorieService storieService
             )
         {
-            var storie = await context.Stories.FirstOrDefaultAsync(x => x.Id == id);
+            var storie = await storieService.GetStorie(context, id);
+
             if (storie == null)
-                return NotFound(new { message = "Storie não encontrado" });
-
-            try
             {
-                context.Stories.Remove(storie);
-                await context.SaveChangesAsync();
-
-                return Ok(new { message = "Storie deletado com sucesso!" });
+                return NotFound(new { message = "Contato não encontrado" });
             }
-            catch
+
+            var deleteStorie = await storieService.DeleteStorie(context, storie);
+
+            if (deleteStorie.okMessage)
             {
-
-                return BadRequest(new { message = "Não foi possível excluir o storie." });
+                return Ok(deleteStorie);
             }
+            return BadRequest(deleteStorie);
 
         }
 
