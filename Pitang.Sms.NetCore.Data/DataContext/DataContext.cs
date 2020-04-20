@@ -10,6 +10,16 @@ namespace Pitang.Sms.NetCore.Data.DataContext
         { }
 
         public DbSet<User> Users { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .HasIndex(p => new { p.Username})
+                .IsUnique(true);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(p => new { p.Email })
+                .IsUnique(true);
+        }
 
         public DbSet<Contact> Contacts { get; set; }
 

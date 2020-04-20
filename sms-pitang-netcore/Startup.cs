@@ -40,6 +40,7 @@ namespace sms_pitang_netcore
             services.AddScoped<IStorieService, StorieService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IHistoricPasswordService, HistoricPasswordService>();
+            services.AddScoped<ICriptographyService, CriptographyService>();
 
 
             var key = Encoding.ASCII.GetBytes(Settings.Secret);

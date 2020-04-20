@@ -1,4 +1,5 @@
 ﻿using Pitang.Sms.NetCore.Data.DataContext;
+using Pitang.Sms.NetCore.Entities.auxiliares;
 using Pitang.Sms.NetCore.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -17,14 +18,14 @@ namespace Pitang.Sms.NetCore.Services
             int id
             );
 
-        public Task<User> PostUser(
+        public Task<dynamic> PostUser(
             DataContext context,
             User model
             );
 
-        public Task<dynamic> PostLoginUser(
+        public Task<User> PostLoginUser(
             DataContext context,
-            User model
+            UserLogin model
             );
 
         public Task<dynamic> PutUser(

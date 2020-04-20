@@ -52,7 +52,7 @@ namespace sms_pitang_netcore.Controllers
 
             var storie = await storieService.GetStorie(context, id);
             if (storie == null)
-                return NotFound(new { message = "Contato não encontrado" });
+                return NotFound(new { message = "Storie não encontrado" });
 
             return Ok(storie);
 

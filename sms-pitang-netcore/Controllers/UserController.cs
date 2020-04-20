@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using Pitang.Sms.NetCore.Auth.Services;
 using Pitang.Sms.NetCore.Services;
+using Pitang.Sms.NetCore.Entities.auxiliares;
+using System.Security.Cryptography;
 
 namespace sms_pitang_netcore.Controllers
 {
@@ -69,22 +71,26 @@ namespace sms_pitang_netcore.Controllers
         public async Task<ActionResult<User>> Post(
             [FromBody] User model,
             [FromServices] DataContext context,
-            [FromServices] IUserService userService
+            [FromServices] IUserService userService,
+            [FromServices] IHistoricPasswordService passwordService,
+            [FromServices] ICriptographyService crypt
             )
         {
-           
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            var postUser = await userService.PostUser(context, model);
-
-            if(postUser == null)
+            using (SHA256 sha256Hash = SHA256.Create())
             {
-                return BadRequest(new { message = "Não foi possível criar o usuário" });
+                model.Password = crypt.GetHash(sha256Hash, model.Password);
             }
-            return Ok(model);
-
-          
+            var postUser = await userService.PostUser(context, model);
+            await passwordService.PostHistoricPassword(context,
+                new HistoricPassword { User = postUser, Password = postUser.Password });
+            if (postUser is User)
+            {
+                model.Password = "";
+                return Ok(model);
+            }
+            return BadRequest(postUser);
         }
 
         [HttpPut]
@@ -94,29 +100,37 @@ namespace sms_pitang_netcore.Controllers
            int id,
            [FromServices] DataContext context,
            [FromBody] User model,
-           [FromServices] IUserService userService)
+           [FromServices] IUserService userService,
+           [FromServices] ICriptographyService crypt,
+           [FromServices] IHistoricPasswordService passwordService)
         {
 
-        
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var user = await userService.GetUser(context, id);
             if (user == null)
             {
                 return NotFound(new { message = "Usuário não encontrado!" });
             }
-            if (!ModelState.IsValid)
+            using (SHA256 sha256Hash = SHA256.Create())
             {
-                return BadRequest(ModelState);
+                model.Password = crypt.GetHash(sha256Hash, model.Password);
             }
-            
+            model.Id = id;
 
             var putUser = await userService.PutUser(context, model);
-
-            if(putUser != null)
+            
+            await passwordService.PostHistoricPassword(context,
+                new HistoricPassword { User = putUser, Password = putUser.Password });
+            if (putUser is User)
             {
-                return Ok(model);
+                putUser.Password = "";
+                return Ok(putUser);
             }
-
-            return BadRequest(new { message = "Não foi possível alterar o usuário." });
+            return BadRequest(putUser);
 
         }
 
@@ -125,23 +139,37 @@ namespace sms_pitang_netcore.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<dynamic>> Authenticate(
             [FromServices] DataContext context,
-            [FromBody] User model,
-            [FromServices] IUserService userService)
+            [FromBody] UserLogin model,
+            [FromServices] IUserService userService,
+            [FromServices] ICriptographyService crypt)
         {
 
             var user = await userService.PostLoginUser(context, model);
 
             if (user == null)
             {
-                return NotFound(new { message = "Usuário ou senha inválidos" });
+                return NotFound(new { message = "Usuário não existe" });
             }
 
-            var token = TokenService.GenerateToken(user);
-            return new
+            using (SHA256 sha256Hash = SHA256.Create())
             {
-                user = user,
-                token = token
-            };
+                if (crypt.VerifyHash(sha256Hash, model.Password, user.Password))
+                {
+                    var token = TokenService.GenerateToken(user);
+                    user.Password = "";
+                    return new
+                    {
+                        user = user,
+                        token = token
+                    };
+                }
+                else
+                {
+                    return NotFound(new { message = "Senha Incorreta" });
+                }
+            }
+            
+
 
         }
 
@@ -163,9 +191,9 @@ namespace sms_pitang_netcore.Controllers
 
             var deleteUser = await userService.DeleteUser(context, user);
 
-            if (deleteUser.okMessage)
+            if (deleteUser is User)
             {
-                return Ok(deleteUser);
+                return Ok("Usuário "+deleteUser.Username + " deletado com sucesso");
             }
             return BadRequest(deleteUser);
 

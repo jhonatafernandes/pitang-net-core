@@ -23,12 +23,11 @@ namespace Pitang.Sms.NetCore.Entities.Models
         [Required(ErrorMessage = "Este campo é obrigatório")]
         [MaxLength(60, ErrorMessage = "Este campo deve conter entre 3 e 60 caracteres.")]
         [MinLength(3, ErrorMessage = "Este campo deve conter entre 3 e 60 caracteres.")]
+        [EmailAddress(ErrorMessage = "Este endereço de email é inválido")]
         public string Email { get; set; }
 
 
         [Required(ErrorMessage = "Este campo é obrigatório")]
-        [MaxLength(60, ErrorMessage = "Este campo deve conter entre 8 e 60 caracteres.")]
-        [MinLength(8, ErrorMessage = "Este campo deve conter entre 8 e 60 caracteres.")]
         public string Password { get; set; }
 
        

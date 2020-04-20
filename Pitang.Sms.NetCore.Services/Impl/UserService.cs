@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Pitang.Sms.NetCore.Data.DataContext;
+using Pitang.Sms.NetCore.Entities.auxiliares;
 using Pitang.Sms.NetCore.Entities.Models;
 using Pitang.Sms.NetCore.Services;
 using System;
@@ -16,6 +17,13 @@ namespace Pitang.Sms.NetCore.Services
             DataContext context)
         {
             var users = await context.Users.AsNoTracking().ToListAsync();
+
+            //Precisa-se encontrar a maneira mais correta de extrair do banco sem a senha
+            //Foreach abaixo como uma solução temporária
+            foreach(User user in users)
+            {
+                user.Password = "";
+            }
             return users;
 
         }
@@ -26,21 +34,29 @@ namespace Pitang.Sms.NetCore.Services
             )
         {
             var user = await context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            if (user is User)
+            {
+                user.Password = "";
+            }
             return user;
         }
 
-        public async Task<dynamic> PostLoginUser(
+        public async Task<User> PostLoginUser(
             DataContext context,
-            User model)
+            UserLogin model)
         {
             var user = await context.Users
                     .AsNoTracking()
-                    .Where(x => x.Username == model.Username && x.Password == model.Password)
+                    .Where(x => x.Email == model.Email)
                     .FirstOrDefaultAsync();
-            return user;
+            if (user is User)
+            {
+                return user;
+            }
+            return null;
         }
 
-        public async Task<User> PostUser(
+        public async Task<dynamic> PostUser(
             DataContext context,
             User model
             )
@@ -51,9 +67,13 @@ namespace Pitang.Sms.NetCore.Services
                 await context.SaveChangesAsync();
                 return model;
             }
+            catch (DbUpdateException)
+            {
+                return "Username ou email já existem!";
+            }
             catch
             {
-                return null;
+                return "não foi possível criar um usuário, tente novamente!";
             }
         }
 
@@ -65,19 +85,19 @@ namespace Pitang.Sms.NetCore.Services
             {
                 context.Entry<User>(model).State = EntityState.Modified;
                 await context.SaveChangesAsync();
+                
                 return model;
 
             }
+            catch (DbUpdateException)
+            {
+                return "Username ou Email já existem!";
+            }
             catch
             {
-                return null;
+                return "Não foi possível alterar o usuário.";
             }
         }
-
-
-
-
-
 
 
         public async Task<dynamic> DeleteUser(
@@ -88,7 +108,7 @@ namespace Pitang.Sms.NetCore.Services
             {
                 context.Users.Remove(model);
                 await context.SaveChangesAsync();
-                return new { okMessage = "Usuário deletado com sucesso!" };
+                return model;
             }
             catch
             {
