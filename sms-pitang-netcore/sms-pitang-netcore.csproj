@@ -23,10 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClassLibrary1\Pitang.Sms.NetCore.Services.csproj" />
     <ProjectReference Include="..\Pitang.Sms.NetCore.Auth\Pitang.Sms.NetCore.Auth.csproj" />
     <ProjectReference Include="..\Pitang.Sms.NetCore.Data\Pitang.Sms.NetCore.Data.csproj" />
     <ProjectReference Include="..\Pitang.Sms.NetCore.Entities\Pitang.Sms.NetCore.Entities.csproj" />
+    <ProjectReference Include="..\Pitang.Sms.NetCore.Services\Pitang.Sms.NetCore.Services.csproj" />
   </ItemGroup>
 
 

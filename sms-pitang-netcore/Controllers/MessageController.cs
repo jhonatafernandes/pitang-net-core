@@ -7,6 +7,7 @@ using Pitang.Sms.NetCore.Entities.Models;
 using Pitang.Sms.NetCore.Data.DataContext;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using Pitang.Sms.NetCore.Services;
 
 namespace sms_pitang_netcore.Controllers
 {
@@ -18,19 +19,22 @@ namespace sms_pitang_netcore.Controllers
 
         [HttpGet]
         [Route("")]
+        //[Authorize(Roles ="admin")]
         public async Task<ActionResult<List<Messages>>> Get(
-            [FromServices] DataContext context)
+            [FromServices] DataContext contexto,
+            [FromServices] IMessageService messageService
+             )
         {
-            try
-            {
-                var messages = await context.Messages.AsNoTracking().ToListAsync();
-                return Ok(messages);
 
-            }
-            catch
+            var messages = await messageService.GetAllMessages(contexto);
+
+            if (messages == null)
             {
-                return BadRequest(new { message = "Não foi possível buscar os mensagens" });
+                return NotFound(new { message = "Não há mensagens cadastradas" });
             }
+            return Ok(messages);
+
+
 
         }
 
@@ -38,141 +42,101 @@ namespace sms_pitang_netcore.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
+        //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<Messages>> GetById(
             int id,
-            [FromServices] DataContext context)
+            [FromServices] DataContext context,
+            [FromServices] IMessageService messageService
+            )
         {
-            try
-            {
-                var mensagem = await context.Messages.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-                if (mensagem == null)
-                    return NotFound(new { message = "Mensagem não encontrada" });
 
-                return Ok(mensagem);
+            var message = await messageService.GetMessage(context, id);
+            if (message == null)
+                return NotFound(new { message = "Mensagem não encontrada" });
 
-            }
-            catch
-            {
-                return BadRequest(new { message = "Não foi possível retornar a mensagem" });
-            }
+            return Ok(message);
+
+
 
         }
 
         [HttpPost]
         [Route("")]
+        //[AllowAnonymous]
         public async Task<ActionResult<Messages>> Post(
             [FromBody] Messages model,
-            [FromServices] DataContext context
+            [FromServices] DataContext context,
+            [FromServices] IMessageService messageService
             )
         {
-            try
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var postMessage = await messageService.PostMessage(context, model);
+
+            if (postMessage == null)
             {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
-                context.Messages.Add(model);
-                await context.SaveChangesAsync();
-                return Ok(model);
-
+                return BadRequest(new { message = "Não foi possível enviar a mensagem" });
             }
-            catch
-            {
-                return BadRequest(new { message = "Não foi possível criar a mensagem" });
+            return Ok(model);
 
-            }
+
         }
 
         [HttpPut]
         [Route("{id:int}")]
+        //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<Messages>> Put(
            int id,
-           [FromBody]Messages model,
-           [FromServices] DataContext context)
+           [FromServices] DataContext context,
+           [FromBody] Messages model,
+           [FromServices] IMessageService messageService)
         {
 
 
-            if (id != model.Id)
+            var message = await messageService.GetMessage(context, id);
+            if (message == null)
             {
-                return NotFound(new { message = "Mensagem não encontrada!" });
+                return NotFound(new { message = "mensagem não encontrada!" });
             }
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            try
+            var putMessage = await messageService.PutMessage(context, model);
+            if (putMessage != null)
             {
-                context.Entry<Messages>(model).State = EntityState.Modified;
-                await context.SaveChangesAsync();
                 return Ok(model);
-
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return BadRequest(new { message = "Uma alteração já está sendo realizada" });
-            }
-            catch
-            {
-                return BadRequest(new { message = "Não foi possível alterar a mensagem." });
             }
 
-
+            return BadRequest(new { message = "Não foi possível alterar a mensagem." });
 
         }
 
-
-
-
-
-        /*[HttpPost]
-        [Route("login")]
-        public async Task<ActionResult<dynamic>> Authenticate(
-            [FromServices] DataContext context,
-            [FromBody] Messages model)
-        {
-
-            var Messages = await context.messages
-                    .AsNoTracking()
-                    .Where(x => x.Contactname == model.Contactname && x.Password == model.Password)
-                    .FirstOrDefaultAsync();
-
-            if (Messages == null)
-            {
-                return NotFound(new { message = "Usuário ou senha inválidos" });
-            }
-
-            var token = TokenService.GenerateToken(Messages);
-            return new
-            {
-                Messages = Messages,
-                token = token
-            };
-
-        }*/
-
         [HttpDelete]
         [Route("{id:int}")]
+        //[Authorize(Roles = "admin")]
         public async Task<ActionResult<Messages>> Delete(
             int id,
-            [FromServices] DataContext context
+            [FromServices] DataContext context,
+            [FromServices] IMessageService messageService
             )
         {
-            var mensagem = await context.Messages.FirstOrDefaultAsync(x => x.Id == id);
-            if (mensagem == null)
-                return NotFound(new { message = "Mensagem não encontrado" });
+            var message = await messageService.GetMessage(context, id);
 
-            try
+            if (message == null)
             {
-                context.Messages.Remove(mensagem);
-                await context.SaveChangesAsync();
-
-                return Ok(new { message = "Mensagem deletado com sucesso!" });
+                return NotFound(new { message = "Mensagem não encontrada" });
             }
-            catch
+
+            var deleteMessage = await messageService.DeleteMessage(context, message);
+
+            if (deleteMessage.okMessage)
             {
-
-                return BadRequest(new { message = "Não foi possível excluir a mensagem." });
+                return Ok(deleteMessage);
             }
+            return BadRequest(deleteMessage);
 
         }
 

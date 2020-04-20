@@ -7,6 +7,7 @@ using Pitang.Sms.NetCore.Entities.Models;
 using Pitang.Sms.NetCore.Data.DataContext;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using Pitang.Sms.NetCore.Services;
 
 namespace sms_pitang_netcore.Controllers
 {
@@ -18,19 +19,22 @@ namespace sms_pitang_netcore.Controllers
 
         [HttpGet]
         [Route("")]
+        //[Authorize(Roles ="admin")]
         public async Task<ActionResult<List<HistoricPassword>>> Get(
-            [FromServices] DataContext context)
+            [FromServices] DataContext contexto,
+            [FromServices] IHistoricPasswordService historicPasswordService
+             )
         {
-            try
-            {
-                var historicPasswords = await context.Passwords.AsNoTracking().ToListAsync();
-                return Ok(historicPasswords);
 
-            }
-            catch
+            var historicPasswords = await historicPasswordService.GetAllHistoricPassword(contexto);
+
+            if (historicPasswords == null)
             {
-                return BadRequest(new { message = "Não foi possível buscar os históricos de senhas" });
+                return NotFound(new { historicPassword = "Não há históricos de senhas cadastradas" });
             }
+            return Ok(historicPasswords);
+
+
 
         }
 
@@ -38,141 +42,101 @@ namespace sms_pitang_netcore.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
+        //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<HistoricPassword>> GetById(
             int id,
-            [FromServices] DataContext context)
+            [FromServices] DataContext context,
+            [FromServices] IHistoricPasswordService historicPasswordService
+            )
         {
-            try
-            {
-                var historicPassword = await context.Passwords.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-                if (historicPassword == null)
-                    return NotFound(new { message = "Histórico de senha não encontrado" });
 
-                return Ok(historicPassword);
+            var historicPassword = await historicPasswordService.GetHistoricPassword(context, id);
+            if (historicPassword == null)
+                return NotFound(new { historicPassword = "Histórico de senha não encontrado" });
 
-            }
-            catch
-            {
-                return BadRequest(new { message = "Não foi possível retornar o histórico de senha" });
-            }
+            return Ok(historicPassword);
+
+
 
         }
 
         [HttpPost]
         [Route("")]
+        //[AllowAnonymous]
         public async Task<ActionResult<HistoricPassword>> Post(
             [FromBody] HistoricPassword model,
-            [FromServices] DataContext context
+            [FromServices] DataContext context,
+            [FromServices] IHistoricPasswordService historicPasswordService
             )
         {
-            try
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var postHistoricPassword = await historicPasswordService.PostHistoricPassword(context, model);
+
+            if (postHistoricPassword == null)
             {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
-                context.Passwords.Add(model);
-                await context.SaveChangesAsync();
-                return Ok(model);
-
+                return BadRequest(new { historicPassword = "Não foi possível enviar o histórico de senha" });
             }
-            catch
-            {
-                return BadRequest(new { message = "Não foi possível criar o histórico de senha" });
+            return Ok(model);
 
-            }
+
         }
 
         [HttpPut]
         [Route("{id:int}")]
+        //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<HistoricPassword>> Put(
            int id,
-           [FromBody]HistoricPassword model,
-           [FromServices] DataContext context)
+           [FromServices] DataContext context,
+           [FromBody] HistoricPassword model,
+           [FromServices] IHistoricPasswordService historicPasswordService)
         {
 
 
-            if (id != model.Id)
+            var historicPassword = await historicPasswordService.GetHistoricPassword(context, id);
+            if (historicPassword == null)
             {
-                return NotFound(new { message = "Histórico de senha não encontrado!" });
+                return NotFound(new { historicPassword = "histórico de senha não encontrada!" });
             }
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            try
+            var putHistoricPassword = await historicPasswordService.PutHistoricPassword(context, model);
+            if (putHistoricPassword != null)
             {
-                context.Entry<HistoricPassword>(model).State = EntityState.Modified;
-                await context.SaveChangesAsync();
                 return Ok(model);
-
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return BadRequest(new { message = "Uma alteração já está sendo realizada" });
-            }
-            catch
-            {
-                return BadRequest(new { message = "Não foi possível alterar o histórico de senha." });
             }
 
-
+            return BadRequest(new { historicPassword = "Não foi possível alterar a histórico de senha." });
 
         }
 
-
-
-
-
-        /*[HttpPost]
-        [Route("login")]
-        public async Task<ActionResult<dynamic>> Authenticate(
-            [FromServices] DataContext context,
-            [FromBody] HistoricPassword model)
-        {
-
-            var HistoricPassword = await context.historicPasswords
-                    .AsNoTracking()
-                    .Where(x => x.Contactname == model.Contactname && x.Password == model.Password)
-                    .FirstOrDefaultAsync();
-
-            if (HistoricPassword == null)
-            {
-                return NotFound(new { message = "Usuário ou senha inválidos" });
-            }
-
-            var token = TokenService.GenerateToken(HistoricPassword);
-            return new
-            {
-                HistoricPassword = HistoricPassword,
-                token = token
-            };
-
-        }*/
-
         [HttpDelete]
         [Route("{id:int}")]
+        //[Authorize(Roles = "admin")]
         public async Task<ActionResult<HistoricPassword>> Delete(
             int id,
-            [FromServices] DataContext context
+            [FromServices] DataContext context,
+            [FromServices] IHistoricPasswordService historicPasswordService
             )
         {
-            var historicPassword = await context.Passwords.FirstOrDefaultAsync(x => x.Id == id);
+            var historicPassword = await historicPasswordService.GetHistoricPassword(context, id);
+
             if (historicPassword == null)
-                return NotFound(new { message = "Histórico de senha não encontrado" });
-
-            try
             {
-                context.Passwords.Remove(historicPassword);
-                await context.SaveChangesAsync();
-
-                return Ok(new { message = "Histórico de senha deletado com sucesso!" });
+                return NotFound(new { historicPassword = "Mensagem não encontrada" });
             }
-            catch
+
+            var deleteHistoricPassword = await historicPasswordService.DeleteHistoricPassword(context, historicPassword);
+
+            if (deleteHistoricPassword.okHistoricPassword)
             {
-
-                return BadRequest(new { message = "Não foi possível excluir o histórico de senha." });
+                return Ok(deleteHistoricPassword);
             }
+            return BadRequest(deleteHistoricPassword);
 
         }
 

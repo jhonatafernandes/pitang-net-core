@@ -127,7 +127,7 @@ namespace sms_pitang_netcore.Controllers
 
             if (storie == null)
             {
-                return NotFound(new { message = "Contato não encontrado" });
+                return NotFound(new { message = "Storie não encontrado" });
             }
 
             var deleteStorie = await storieService.DeleteStorie(context, storie);

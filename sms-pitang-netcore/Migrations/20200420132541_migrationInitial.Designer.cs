@@ -10,8 +10,8 @@ using Pitang.Sms.NetCore.Data.DataContext;
 namespace sms_pitang_netcore.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200415142602_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20200420132541_migrationInitial")]
+    partial class migrationInitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,18 +28,22 @@ namespace sms_pitang_netcore.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("IdOwner")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdTarget")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(60)")
                         .HasMaxLength(60);
 
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TargetId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("TargetId");
 
                     b.ToTable("Contacts");
                 });
@@ -63,6 +67,8 @@ namespace sms_pitang_netcore.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Passwords");
                 });
 
@@ -73,12 +79,6 @@ namespace sms_pitang_netcore.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("IdOwner")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdTarget")
-                        .HasColumnType("int");
-
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(60)")
@@ -87,7 +87,17 @@ namespace sms_pitang_netcore.Migrations
                     b.Property<DateTime>("Publicate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserOwnerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserTargetId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserOwnerId");
+
+                    b.HasIndex("UserTargetId");
 
                     b.ToTable("Messages");
                 });
@@ -114,6 +124,8 @@ namespace sms_pitang_netcore.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Stories");
                 });
@@ -149,6 +161,54 @@ namespace sms_pitang_netcore.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Pitang.Sms.NetCore.Entities.Models.Contact", b =>
+                {
+                    b.HasOne("Pitang.Sms.NetCore.Entities.Models.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Pitang.Sms.NetCore.Entities.Models.User", "Target")
+                        .WithMany()
+                        .HasForeignKey("TargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Pitang.Sms.NetCore.Entities.Models.HistoricPassword", b =>
+                {
+                    b.HasOne("Pitang.Sms.NetCore.Entities.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Pitang.Sms.NetCore.Entities.Models.Messages", b =>
+                {
+                    b.HasOne("Pitang.Sms.NetCore.Entities.Models.User", "UserOwner")
+                        .WithMany()
+                        .HasForeignKey("UserOwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Pitang.Sms.NetCore.Entities.Models.User", "UserTarget")
+                        .WithMany()
+                        .HasForeignKey("UserTargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Pitang.Sms.NetCore.Entities.Models.Storie", b =>
+                {
+                    b.HasOne("Pitang.Sms.NetCore.Entities.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

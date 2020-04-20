@@ -7,7 +7,6 @@ using Pitang.Sms.NetCore.Entities.Models;
 using Pitang.Sms.NetCore.Data.DataContext;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-//using Pitang.Sms.NetCore.Services;
 using Pitang.Sms.NetCore.Auth.Services;
 using Pitang.Sms.NetCore.Services;
 
@@ -35,9 +34,6 @@ namespace sms_pitang_netcore.Controllers
                 return NotFound(new { message = "Não há contatos cadastrados" });
             }
             return Ok(contacts);
-         
-          
-
         }
 
 

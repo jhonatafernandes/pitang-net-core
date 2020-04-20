@@ -22,11 +22,13 @@ namespace Pitang.Sms.NetCore.Entities.Models
 
         [Required(ErrorMessage = "Este campo é obrigatório")]
         [Range(1, int.MaxValue, ErrorMessage = "O campo deve ser maior ou igual a 1")]
-        public int IdOwner { get; set; }
+        public int UserOwnerId { get; set; }
+        public User UserOwner { get; set; }
 
         [Required(ErrorMessage = "Este campo é obrigatório")]
         [Range(1, int.MaxValue, ErrorMessage = "O campo deve ser maior ou igual a 1")]
-        public int IdTarget { get; set; }
+        public int UserTargetId { get; set; }
+        public User UserTarget { get; set; }
 
 
         public DateTime Publicate { get; set; }

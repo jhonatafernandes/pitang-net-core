@@ -17,11 +17,14 @@ namespace Pitang.Sms.NetCore.Entities.Models
 
         [Required(ErrorMessage = "Este campo é obrigatório")]
         [Range(1, int.MaxValue, ErrorMessage = "O campo deve ser maior ou igual a 1")]
-        public int IdOwner { get; set; }
+        public int OwnerId { get; set; }
+        public User Owner { get; set; }
 
         [Required(ErrorMessage = "Este campo é obrigatório")]
         [Range(1, int.MaxValue, ErrorMessage = "O campo deve ser maior ou igual a 1")]
-        public int IdTarget { get; set; }
+        public int TargetId { get; set; }
+        public User Target { get; set; }
+
 
     }
 }
