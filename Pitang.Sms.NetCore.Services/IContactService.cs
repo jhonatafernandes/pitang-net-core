@@ -18,7 +18,7 @@ namespace Pitang.Sms.NetCore.Services
             int id
             );
 
-        public Task<Contact> PostContact(
+        public Task<dynamic> PostContact(
             DataContext context,
             Contact model
             );

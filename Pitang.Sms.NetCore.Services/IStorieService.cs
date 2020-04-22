@@ -17,7 +17,7 @@ namespace Pitang.Sms.NetCore.Services
             int id
             );
 
-        public Task<Storie> PostStorie(
+        public Task<dynamic> PostStorie(
             DataContext context,
             Storie model
             );

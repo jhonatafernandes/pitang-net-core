@@ -66,15 +66,23 @@ namespace sms_pitang_netcore.Controllers
         public async Task<ActionResult<Storie>> Post(
             [FromBody] Storie model,
             [FromServices] DataContext context,
-            [FromServices] IStorieService storieService
+            [FromServices] IStorieService storieService,
+            [FromServices] IUserService userService
             )
         {
 
             if (!ModelState.IsValid)
+            {
                 return BadRequest(ModelState);
+            }
+
+            var validateUser = await userService.GetUser(context, model.UserId);
+            if(validateUser == null)
+            {
+                return BadRequest(new { message = "O usuário informado não existe" });
+            }
 
             var postStorie = await storieService.PostStorie(context, model);
-
             if (postStorie == null)
             {
                 return BadRequest(new { message = "Não foi possível criar o storie" });
@@ -105,12 +113,11 @@ namespace sms_pitang_netcore.Controllers
                 return BadRequest(ModelState);
             }
             var putStorie = await storieService.PutStorie(context, model);
-            if (putStorie != null)
+            if (putStorie == null)
             {
-                return Ok(model);
+                return BadRequest(new { message = "Não foi possível alterar o storie." });
             }
-
-            return BadRequest(new { message = "Não foi possível alterar o storie." });
+            return Ok(model);
 
         }
 

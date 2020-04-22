@@ -83,10 +83,11 @@ namespace sms_pitang_netcore.Controllers
                 model.Password = crypt.GetHash(sha256Hash, model.Password);
             }
             var postUser = await userService.PostUser(context, model);
-            await passwordService.PostHistoricPassword(context,
-                new HistoricPassword { User = postUser, Password = postUser.Password });
+            
             if (postUser is User)
             {
+                await passwordService.PostHistoricPassword(context,
+                new HistoricPassword { User = postUser, Password = postUser.Password });
                 model.Password = "";
                 return Ok(model);
             }
@@ -122,11 +123,10 @@ namespace sms_pitang_netcore.Controllers
             model.Id = id;
 
             var putUser = await userService.PutUser(context, model);
-            
-            await passwordService.PostHistoricPassword(context,
-                new HistoricPassword { User = putUser, Password = putUser.Password });
             if (putUser is User)
             {
+                await passwordService.PostHistoricPassword(context,
+                new HistoricPassword { User = putUser, Password = putUser.Password });
                 putUser.Password = "";
                 return Ok(putUser);
             }

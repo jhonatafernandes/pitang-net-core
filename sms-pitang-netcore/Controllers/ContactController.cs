@@ -71,15 +71,17 @@ namespace sms_pitang_netcore.Controllers
         {
 
             if (!ModelState.IsValid)
+            {
                 return BadRequest(ModelState);
-
+            }
             var postContact = await contactService.PostContact(context, model);
 
-            if (postContact == null)
+            if (postContact is Contact)
             {
-                return BadRequest(new { message = "Não foi possível criar o contato" });
+                return Ok(model);
+                
             }
-            return Ok(model);
+            return BadRequest(postContact);
 
 
         }
@@ -94,23 +96,23 @@ namespace sms_pitang_netcore.Controllers
            [FromServices] IContactService contactService)
         {
 
-
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var contact = await contactService.GetContact(context, id);
             if (contact == null)
             {
                 return NotFound(new { message = "contato não encontrado!" });
             }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+           
             var putContact = await contactService.PutContact(context, model);
-            if (putContact != null)
+            if (putContact is Contact)
             {
                 return Ok(model);
             }
 
-            return BadRequest(new { message = "Não foi possível alterar o contato." });
+            return BadRequest(putContact);
 
         }
 
@@ -132,9 +134,9 @@ namespace sms_pitang_netcore.Controllers
 
             var deleteContact = await contactService.DeleteContact(context, contact);
 
-            if (deleteContact.okMessage)
+            if (deleteContact is Contact)
             {
-                return Ok(deleteContact);
+                return Ok(new { message = "O contato foi deletado com sucesso" });
             }
             return BadRequest(deleteContact);
 

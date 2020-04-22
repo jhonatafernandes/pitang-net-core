@@ -31,7 +31,7 @@ namespace Pitang.Sms.NetCore.Services.Impl
         }
 
 
-        public async Task<Contact> PostContact(
+        public async Task<dynamic> PostContact(
             DataContext context,
             Contact model
             )
@@ -42,10 +42,13 @@ namespace Pitang.Sms.NetCore.Services.Impl
                 await context.SaveChangesAsync();
                 return model;
             }
+            catch(DbUpdateException)
+            {
+                return "Um dos usuários informados não existe";
+            }
             catch
             {
-                return null;
-            }
+                return "Não foi possível criar o contato";            }
         }
 
         public async Task<dynamic> PutContact(
@@ -61,7 +64,7 @@ namespace Pitang.Sms.NetCore.Services.Impl
             }
             catch
             {
-                return null;
+                return "Não foi possível editar o contato.";
             }
         }
 
@@ -73,11 +76,11 @@ namespace Pitang.Sms.NetCore.Services.Impl
             {
                 context.Contacts.Remove(model);
                 await context.SaveChangesAsync();
-                return new { okMessage = "Contato deletado com sucesso!" };
+                return model;
             }
             catch
             {
-                return new { badMessage = "Não foi possível excluir o contato." };
+                return "Não foi possível excluir o contato.";
             }
         } 
     }

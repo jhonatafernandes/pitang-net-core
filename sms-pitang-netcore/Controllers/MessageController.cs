@@ -71,10 +71,10 @@ namespace sms_pitang_netcore.Controllers
         {
 
             if (!ModelState.IsValid)
+            {
                 return BadRequest(ModelState);
-
+            }
             var postMessage = await messageService.PostMessage(context, model);
-
             if (postMessage == null)
             {
                 return BadRequest(new { message = "Não foi possível enviar a mensagem" });

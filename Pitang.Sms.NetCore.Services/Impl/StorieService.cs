@@ -31,7 +31,7 @@ namespace Pitang.Sms.NetCore.Services.Impl
         }
 
 
-        public async Task<Storie> PostStorie(
+        public async Task<dynamic> PostStorie(
             DataContext context,
             Storie model
             )
@@ -44,7 +44,7 @@ namespace Pitang.Sms.NetCore.Services.Impl
             }
             catch
             {
-                return null;
+                return "Não foi possível adicionar o storie";
             }
         }
 

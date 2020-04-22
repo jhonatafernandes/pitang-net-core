@@ -34,6 +34,7 @@ namespace Pitang.Sms.NetCore.Services.Impl
             Messages model
             )
         {
+            //var validateContact = await context.Contacts.AsNoTracking().FirstOrDefaultAsync(x => x.OwnerId)
             try
             {
                 context.Messages.Add(model);
