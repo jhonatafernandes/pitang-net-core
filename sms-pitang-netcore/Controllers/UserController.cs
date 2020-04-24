@@ -9,8 +9,10 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using Pitang.Sms.NetCore.Auth.Services;
 using Pitang.Sms.NetCore.Services;
-using Pitang.Sms.NetCore.Entities.auxiliares;
 using System.Security.Cryptography;
+using AutoMapper;
+using Pitang.Sms.NetCore.DTO.User;
+using Pitang.Sms.NetCore.Mapper;
 
 namespace sms_pitang_netcore.Controllers
 {
@@ -19,23 +21,20 @@ namespace sms_pitang_netcore.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-
         [HttpGet]
         [Route("")]
         //[Authorize(Roles ="admin")]
         public async Task<ActionResult<List<User>>> Get(
-            [FromServices] DataContext contexto,
             [FromServices] IUserService userService
              )
         {
-            
-            var contacts = await userService.GetAllUsers(contexto);
+            var users = await userService.Get();
 
-            if(contacts == null)
+            if(users == null)
             {
-                return NotFound(new { message = "Não há contatos cadastrados" });
+                return NotFound(new { message = "Não há usuários cadastrados" });
             }
-            return Ok(contacts);
+            return Ok(users);
         }
 
 
@@ -51,18 +50,15 @@ namespace sms_pitang_netcore.Controllers
         {
             try
             {
-                var user = await userService.GetUser(context, id);
+                var user = await userService.GetById(id);
                 if (user == null)
                     return NotFound(new { message = "Usuário não encontrado" });
-
                 return Ok(user);
-
             }
             catch
             {
                 return BadRequest(new { message = "Não foi possível retornar o usuário" });
             }
-
         }
 
         [HttpPost]
@@ -70,28 +66,15 @@ namespace sms_pitang_netcore.Controllers
         //[AllowAnonymous]
         public async Task<ActionResult<User>> Post(
             [FromBody] User model,
-            [FromServices] DataContext context,
-            [FromServices] IUserService userService,
-            [FromServices] IHistoricPasswordService passwordService,
-            [FromServices] ICriptographyService crypt
+            [FromServices] IUserService userService
             )
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                model.Password = crypt.GetHash(sha256Hash, model.Password);
-            }
-            var postUser = await userService.PostUser(context, model);
-            
-            if (postUser is User)
-            {
-                await passwordService.PostHistoricPassword(context,
-                new HistoricPassword { User = postUser, Password = postUser.Password });
-                model.Password = "";
-                return Ok(model);
-            }
-            return BadRequest(postUser);
+
+            var user = await userService.Post(model);
+
+            return user;
         }
 
         [HttpPut]
@@ -111,23 +94,13 @@ namespace sms_pitang_netcore.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await userService.GetUser(context, id);
+            var user = await userService.GetById(id);
             if (user == null)
             {
                 return NotFound(new { message = "Usuário não encontrado!" });
             }
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                model.Password = crypt.GetHash(sha256Hash, model.Password);
-            }
-            model.Id = id;
-
-            var putUser = await userService.PutUser(context, model);
-            if (putUser is User)
-            {
-                await passwordService.PostHistoricPassword(context,
-                new HistoricPassword { User = putUser, Password = putUser.Password });
-                putUser.Password = "";
+            
+            
                 return Ok(putUser);
             }
             return BadRequest(putUser);
@@ -138,36 +111,18 @@ namespace sms_pitang_netcore.Controllers
         [Route("login")]
         [AllowAnonymous]
         public async Task<ActionResult<dynamic>> Authenticate(
-            [FromServices] DataContext context,
-            [FromBody] UserLogin model,
-            [FromServices] IUserService userService,
-            [FromServices] ICriptographyService crypt)
+            [FromBody] LoginUserDto model,
+            [FromServices] IUserService userService)
         {
 
-            var user = await userService.PostLoginUser(context, model);
+            var user = await userService.Authenticate(model);
 
             if (user == null)
             {
                 return NotFound(new { message = "Usuário não existe" });
             }
 
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                if (crypt.VerifyHash(sha256Hash, model.Password, user.Password))
-                {
-                    var token = TokenService.GenerateToken(user);
-                    user.Password = "";
-                    return new
-                    {
-                        user = user,
-                        token = token
-                    };
-                }
-                else
-                {
-                    return NotFound(new { message = "Senha Incorreta" });
-                }
-            }
+            return Ok(user);
             
 
 
@@ -178,24 +133,17 @@ namespace sms_pitang_netcore.Controllers
         //[Authorize(Roles = "admin")]
         public async Task<ActionResult<User>> Delete(
             int id,
-            [FromServices] DataContext context,
             [FromServices] IUserService userService
             )
         {
-            var user = await userService.GetUser(context, id);
 
-            if (user == null)
+            var deleteUser = await userService.Delete(id);
+
+            if (deleteUser is string)
             {
-                return NotFound(new { message = "Usuário não encontrado" });
+                return Ok(new { message = "Usuário " + deleteUser + " deletado com sucesso" });
             }
-
-            var deleteUser = await userService.DeleteUser(context, user);
-
-            if (deleteUser is User)
-            {
-                return Ok("Usuário "+deleteUser.Username + " deletado com sucesso");
-            }
-            return BadRequest(deleteUser);
+            return BadRequest(new { message = "Usuário não encontrado "});
 
         }
 

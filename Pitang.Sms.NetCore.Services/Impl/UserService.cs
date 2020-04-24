@@ -1,71 +1,96 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Pitang.Sms.NetCore.Auth.Services;
 using Pitang.Sms.NetCore.Data.DataContext;
-using Pitang.Sms.NetCore.Entities.auxiliares;
+using Pitang.Sms.NetCore.DTO.User;
 using Pitang.Sms.NetCore.Entities.Models;
+using Pitang.Sms.NetCore.Mapper;
+using Pitang.Sms.NetCore.Repositories;
 using Pitang.Sms.NetCore.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace Pitang.Sms.NetCore.Services
 {
     public class UserService :  IUserService
     {
-
-        public async Task<List<User>> GetAllUsers(
-            DataContext context)
+        protected readonly MapperConfig _mapper;
+        protected readonly IUserRepository _repository;
+        protected readonly ICriptographyService _crypt;
+        public UserService(MapperConfig mapper, IUserRepository repository, 
+            ICriptographyService crypt)
         {
-            var users = await context.Users.AsNoTracking().ToListAsync();
+            _mapper = mapper;
+            _repository = repository;
+            _crypt = crypt;
+        }
 
-            //Precisa-se encontrar a maneira mais correta de extrair do banco sem a senha
-            //Foreach abaixo como uma solução temporária
-            foreach(User user in users)
+        public async Task<List<GetUserDto>> Get()
+        {
+            var currentUsers = new List<GetUserDto>();
+            var users = await _repository.Get();
+            foreach (var user in users)
             {
-                user.Password = "";
+                currentUsers.Add(_mapper.iMapper.Map<User, GetUserDto>(user));
             }
-            return users;
+            return currentUsers;
 
         }
 
-        public async Task<User> GetUser(
-            DataContext context,
+        public async Task<GetUserDto> GetById(
             int id
             )
         {
-            var user = await context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-            if (user is User)
-            {
-                user.Password = "";
-            }
-            return user;
+            var user = await _repository.GetById(id);
+            var userDto = _mapper.iMapper.Map<User, GetUserDto>(user);
+            return userDto;
         }
 
-        public async Task<User> PostLoginUser(
-            DataContext context,
-            UserLogin model)
+        public async Task<dynamic> Authenticate(
+            LoginUserDto model)
         {
-            var user = await context.Users
-                    .AsNoTracking()
-                    .Where(x => x.Email == model.Email)
-                    .FirstOrDefaultAsync();
-            if (user is User)
+
+            var user = await _repository.Authenticate(model);
+
+            if (user == null)
+                return "Email não cadastrado";
+
+            using (SHA256 sha256Hash = SHA256.Create())
             {
-                return user;
+                if (_crypt.VerifyHash(sha256Hash, model.Password, user.Password))
+                {
+                    var token = TokenService.GenerateToken(user);
+                    return new
+                    {
+                        user = _mapper.iMapper.Map<User, GetUserDto>(user),
+                        token = token
+                    };
+                }
+                else
+                {
+                    return new { message = "Senha Incorreta" };
+                }
             }
-            return null;
         }
 
-        public async Task<dynamic> PostUser(
-            DataContext context,
-            User model
-            )
+        public dynamic Post(
+            User model)
         {
             try
             {
-                context.Users.Add(model);
-                await context.SaveChangesAsync();
-                return model;
+                using (SHA256 sha256Hash = SHA256.Create())
+                {
+                    model.Password = _crypt.GetHash(sha256Hash, model.Password);
+                }
+
+                var user = _repository.Post(model);
+                _repository.HistoricPassword(model);
+
+                return user;
             }
             catch (DbUpdateException)
             {
@@ -77,16 +102,19 @@ namespace Pitang.Sms.NetCore.Services
             }
         }
 
-        public async Task<dynamic> PutUser(
-            DataContext context,
-            User model)
+        public async Task<dynamic> Put(
+            int id,
+            GetUserDto model)
         {
             try
             {
-                context.Entry<User>(model).State = EntityState.Modified;
-                await context.SaveChangesAsync();
-                
-                return model;
+                var userFromBd = await _repository.GetById(id);
+                if (userFromBd == null)
+                    return "O usuário não existe!";
+
+                var user = _mapper.iMapper.Map<GetUserDto, User>(model);
+                var putUser = _repository.Put(user);
+                return putUser;
 
             }
             catch (DbUpdateException)
@@ -100,19 +128,18 @@ namespace Pitang.Sms.NetCore.Services
         }
 
 
-        public async Task<dynamic> DeleteUser(
-            DataContext context,
-            User model)
+        public async Task<dynamic> Delete(
+            int id)
         {
             try
             {
-                context.Users.Remove(model);
-                await context.SaveChangesAsync();
-                return model;
+                var userFromBd = await _repository.GetById(id);
+                _repository.Delete(userFromBd);
+                return userFromBd.Username;
             }
             catch
             {
-                return new { badMessage = "Não foi possível excluir o usuário." };
+                return null;
             }
         }
 

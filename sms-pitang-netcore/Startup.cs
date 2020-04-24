@@ -18,6 +18,11 @@ using Pitang.Sms.NetCore.Auth;
 using Pitang.Sms.NetCore.Data.DataContext;
 using Pitang.Sms.NetCore.Services;
 using Pitang.Sms.NetCore.Services.Impl;
+using Pitang.Sms.NetCore.Mapper.profiles;
+using Pitang.Sms.NetCore.Mapper;
+using AutoMapper;
+using Pitang.Sms.NetCore.Repositories;
+using Pitang.Sms.NetCore.Repositories.Impl;
 
 namespace sms_pitang_netcore
 {
@@ -41,7 +46,9 @@ namespace sms_pitang_netcore
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IHistoricPasswordService, HistoricPasswordService>();
             services.AddScoped<ICriptographyService, CriptographyService>();
-
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddSingleton<MapperConfig>();
+            
 
             var key = Encoding.ASCII.GetBytes(Settings.Secret);
             services.AddAuthentication(x =>

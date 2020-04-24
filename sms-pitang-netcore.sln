@@ -15,6 +15,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pitang.Sms.NetCore.Auth", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pitang.Sms.NetCore.Services", "Pitang.Sms.NetCore.Services\Pitang.Sms.NetCore.Services.csproj", "{90B1ADDF-27C5-43BC-9047-CE53C0F8F1EA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pitang.Sms.NetCore.DTO", "Pitang.Sms.NetCore.DTO\Pitang.Sms.NetCore.DTO.csproj", "{0E2E2584-BCBD-44A8-9440-9ABE7501AC50}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pitang.Sms.NetCore.Mapper", "Pitang.Sms.NetCore.Mapper\Pitang.Sms.NetCore.Mapper.csproj", "{B00D3571-9717-4B99-A2FC-BFDB03C525A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pitang.Sms.NetCore.Repositories", "Pitang.Sms.NetCore.Repositories\Pitang.Sms.NetCore.Repositories.csproj", "{DDEABE86-7924-495B-98ED-A87BAC67079B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +47,18 @@ Global
 		{90B1ADDF-27C5-43BC-9047-CE53C0F8F1EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90B1ADDF-27C5-43BC-9047-CE53C0F8F1EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90B1ADDF-27C5-43BC-9047-CE53C0F8F1EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E2E2584-BCBD-44A8-9440-9ABE7501AC50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E2E2584-BCBD-44A8-9440-9ABE7501AC50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E2E2584-BCBD-44A8-9440-9ABE7501AC50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E2E2584-BCBD-44A8-9440-9ABE7501AC50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B00D3571-9717-4B99-A2FC-BFDB03C525A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B00D3571-9717-4B99-A2FC-BFDB03C525A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B00D3571-9717-4B99-A2FC-BFDB03C525A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B00D3571-9717-4B99-A2FC-BFDB03C525A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDEABE86-7924-495B-98ED-A87BAC67079B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDEABE86-7924-495B-98ED-A87BAC67079B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDEABE86-7924-495B-98ED-A87BAC67079B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDEABE86-7924-495B-98ED-A87BAC67079B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,6 +68,9 @@ Global
 		{613B93A3-A72C-46FB-B103-04F5E9A2515D} = {714FC8BE-D99D-4C7F-9601-197FFBAB6C55}
 		{77847465-9E4D-44AD-9599-D68E4F1B4E3C} = {714FC8BE-D99D-4C7F-9601-197FFBAB6C55}
 		{90B1ADDF-27C5-43BC-9047-CE53C0F8F1EA} = {714FC8BE-D99D-4C7F-9601-197FFBAB6C55}
+		{0E2E2584-BCBD-44A8-9440-9ABE7501AC50} = {714FC8BE-D99D-4C7F-9601-197FFBAB6C55}
+		{B00D3571-9717-4B99-A2FC-BFDB03C525A9} = {714FC8BE-D99D-4C7F-9601-197FFBAB6C55}
+		{DDEABE86-7924-495B-98ED-A87BAC67079B} = {714FC8BE-D99D-4C7F-9601-197FFBAB6C55}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6427518C-F5FD-43F0-86C4-EE98B3C08076}

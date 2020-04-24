@@ -1,6 +1,7 @@
 ﻿using Pitang.Sms.NetCore.Data.DataContext;
-using Pitang.Sms.NetCore.Entities.auxiliares;
+using Pitang.Sms.NetCore.DTO.User;
 using Pitang.Sms.NetCore.Entities.Models;
+using Pitang.Sms.NetCore.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,32 +11,27 @@ namespace Pitang.Sms.NetCore.Services
 {
     public interface IUserService
     {
-        public Task<List<User>> GetAllUsers(
-            DataContext context);
+        public Task<List<GetUserDto>> Get();
 
-        public Task<User> GetUser(
-            DataContext context,
+        public Task<GetUserDto> GetById(
             int id
             );
 
-        public Task<dynamic> PostUser(
-            DataContext context,
+        public dynamic Post(
             User model
             );
 
-        public Task<User> PostLoginUser(
-            DataContext context,
-            UserLogin model
+        public Task<User> Authenticate(
+            LoginUserDto model
             );
 
-        public Task<dynamic> PutUser(
-            DataContext context,
-            User model
+        public Task<dynamic> Put(
+            int id,
+            GetUserDto model
            );
 
-        public Task<dynamic> DeleteUser(
-            DataContext context,
-            User model
+        public Task<dynamic> Delete(
+            int id
             );
 
 
