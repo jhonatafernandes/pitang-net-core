@@ -83,7 +83,7 @@ namespace sms_pitang_netcore.Controllers
         //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<User>> Put(
            int id,
-           [FromBody] GetUserDto model,
+           [FromBody] PropertiesUserDto model,
            [FromServices] IUserService userService)
         {
 
