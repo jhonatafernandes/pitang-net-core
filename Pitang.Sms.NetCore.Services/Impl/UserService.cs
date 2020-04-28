@@ -121,13 +121,23 @@ namespace Pitang.Sms.NetCore.Services
 
         public async Task<dynamic> Put(
             int id,
-            GetUserDto model)
+            PropertiesUserDto model)
         {
             try
             {
                 var userFromBd = await _repository.GetById(id);
                 if (userFromBd == null)
                     return "O usuário não existe!";
+
+                foreach (var property in model.PropertiesToUpdate)
+                {
+                    var propertyInfo = typeof(User).GetProperty(property.PropertyName);
+                    var typeParameter = propertyInfo.GetType();
+
+                    //Olhar https://codereview.stackexchange.com/questions/126405/generic-extension-method-that-will-attempt-to-parse-a-string-and-return-its-val
+
+                    propertyInfo.SetValue(userFromBd, property.PropertyValue);
+                }
 
                 var user = _mapper.iMapper.Map<GetUserDto, User>(model);
                 user.Id = id;
