@@ -8,6 +8,7 @@ using Pitang.Sms.NetCore.Entities.Models;
 using Pitang.Sms.NetCore.Mapper;
 using Pitang.Sms.NetCore.Repositories;
 using Pitang.Sms.NetCore.Services;
+using Pitang.Sms.NetCore.UnitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,12 +22,24 @@ namespace Pitang.Sms.NetCore.Services
         protected readonly MapperConfig _mapper;
         protected readonly IUserRepository _repository;
         protected readonly ICriptographyService _crypt;
-        public UserService(MapperConfig mapper, IUserRepository repository, 
-            ICriptographyService crypt)
+        protected readonly IUnitOfWork _uow;
+        public UserService(
+            MapperConfig mapper, 
+            IUserRepository repository, 
+            ICriptographyService crypt, 
+            IUnitOfWork uow)
         {
             _mapper = mapper;
             _repository = repository;
             _crypt = crypt;
+            _uow = uow;
+        }
+
+
+        enum ReturnType
+        {
+            EmailInvalido,
+            SenhaInvalida
         }
 
         public async Task<List<GetUserDto>> Get()
@@ -57,7 +70,9 @@ namespace Pitang.Sms.NetCore.Services
             var user = await _repository.Authenticate(model);
 
             if (user == null)
-                return "Email não cadastrado";
+            {
+                return UserService.ReturnType.EmailInvalido;
+            }
 
             using (SHA256 sha256Hash = SHA256.Create())
             {
@@ -72,7 +87,7 @@ namespace Pitang.Sms.NetCore.Services
                 }
                 else
                 {
-                    return new { message = "Senha Incorreta" };
+                    return UserService.ReturnType.SenhaInvalida;
                 }
             }
         }
@@ -82,15 +97,17 @@ namespace Pitang.Sms.NetCore.Services
         {
             try
             {
+
                 using (SHA256 sha256Hash = SHA256.Create())
                 {
                     model.Password = _crypt.GetHash(sha256Hash, model.Password);
                 }
 
-                var user = _repository.Post(model);
+                _repository.Post(model);
                 _repository.HistoricPassword(model);
+                _uow.Commit();
 
-                return user;
+                return  _mapper.iMapper.Map<User, GetUserDto>(model);
             }
             catch (DbUpdateException)
             {
@@ -113,7 +130,11 @@ namespace Pitang.Sms.NetCore.Services
                     return "O usuário não existe!";
 
                 var user = _mapper.iMapper.Map<GetUserDto, User>(model);
+                user.Id = id;
                 var putUser = _repository.Put(user);
+                _repository.HistoricPassword(user);
+                _uow.Commit();
+
                 return putUser;
 
             }
@@ -135,7 +156,9 @@ namespace Pitang.Sms.NetCore.Services
             {
                 var userFromBd = await _repository.GetById(id);
                 _repository.Delete(userFromBd);
+                _uow.Commit();
                 return userFromBd.Username;
+
             }
             catch
             {

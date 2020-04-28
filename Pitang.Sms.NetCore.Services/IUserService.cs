@@ -1,4 +1,5 @@
-﻿using Pitang.Sms.NetCore.Data.DataContext;
+﻿using Microsoft.AspNetCore.Mvc;
+using Pitang.Sms.NetCore.Data.DataContext;
 using Pitang.Sms.NetCore.DTO.User;
 using Pitang.Sms.NetCore.Entities.Models;
 using Pitang.Sms.NetCore.Repositories;
@@ -21,7 +22,7 @@ namespace Pitang.Sms.NetCore.Services
             User model
             );
 
-        public Task<User> Authenticate(
+        public Task<dynamic> Authenticate(
             LoginUserDto model
             );
 

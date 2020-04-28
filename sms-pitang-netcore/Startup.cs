@@ -23,6 +23,8 @@ using Pitang.Sms.NetCore.Mapper;
 using AutoMapper;
 using Pitang.Sms.NetCore.Repositories;
 using Pitang.Sms.NetCore.Repositories.Impl;
+using Pitang.Sms.NetCore.UnitOfWork;
+using Pitang.Sms.NetCore.UnitOfWork.Impl;
 
 namespace sms_pitang_netcore
 {
@@ -48,6 +50,7 @@ namespace sms_pitang_netcore
             services.AddScoped<ICriptographyService, CriptographyService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddSingleton<MapperConfig>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             
 
             var key = Encoding.ASCII.GetBytes(Settings.Secret);

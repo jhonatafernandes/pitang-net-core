@@ -44,7 +44,6 @@ namespace sms_pitang_netcore.Controllers
         //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<User>> GetById(
             int id,
-            [FromServices] DataContext context,
             [FromServices] IUserService userService
             )
         {
@@ -64,7 +63,7 @@ namespace sms_pitang_netcore.Controllers
         [HttpPost]
         [Route("")]
         //[AllowAnonymous]
-        public async Task<ActionResult<User>> Post(
+        public ActionResult<dynamic> Post(
             [FromBody] User model,
             [FromServices] IUserService userService
             )
@@ -72,9 +71,11 @@ namespace sms_pitang_netcore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = await userService.Post(model);
+            var user = userService.Post(model);
 
-            return user;
+            if(user is GetUserDto)
+                return Ok(user);
+            return BadRequest(user);
         }
 
         [HttpPut]
@@ -82,27 +83,20 @@ namespace sms_pitang_netcore.Controllers
         //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<User>> Put(
            int id,
-           [FromServices] DataContext context,
-           [FromBody] User model,
-           [FromServices] IUserService userService,
-           [FromServices] ICriptographyService crypt,
-           [FromServices] IHistoricPasswordService passwordService)
+           [FromBody] GetUserDto model,
+           [FromServices] IUserService userService)
         {
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            var putUser = await userService.Put(id, model);
 
-            var user = await userService.GetById(id);
-            if (user == null)
-            {
-                return NotFound(new { message = "Usuário não encontrado!" });
-            }
-            
-            
+
+            if (putUser is User)
                 return Ok(putUser);
-            }
+
             return BadRequest(putUser);
 
         }
@@ -117,15 +111,12 @@ namespace sms_pitang_netcore.Controllers
 
             var user = await userService.Authenticate(model);
 
-            if (user == null)
+            return user switch
             {
-                return NotFound(new { message = "Usuário não existe" });
-            }
-
-            return Ok(user);
-            
-
-
+                1 => NotFound(new { message = "Email Inválido" }),
+                2 => NotFound(new { message = "Senha Inválida" }),
+                _ => Ok(user),
+            };
         }
 
         [HttpDelete]

@@ -10,11 +10,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pitang.Sms.NetCore.Auth\Pitang.Sms.NetCore.Auth.csproj" />
     <ProjectReference Include="..\Pitang.Sms.NetCore.Data\Pitang.Sms.NetCore.Data.csproj" />
     <ProjectReference Include="..\Pitang.Sms.NetCore.DTO\Pitang.Sms.NetCore.DTO.csproj" />
     <ProjectReference Include="..\Pitang.Sms.NetCore.Entities\Pitang.Sms.NetCore.Entities.csproj" />
     <ProjectReference Include="..\Pitang.Sms.NetCore.Mapper\Pitang.Sms.NetCore.Mapper.csproj" />
     <ProjectReference Include="..\Pitang.Sms.NetCore.Repositories\Pitang.Sms.NetCore.Repositories.csproj" />
+    <ProjectReference Include="..\Pitang.Sms.NetCore.UnitOfWork\Pitang.Sms.NetCore.UnitOfWork.csproj" />
   </ItemGroup>
 
 </Project>

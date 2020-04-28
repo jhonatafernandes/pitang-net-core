@@ -11,7 +11,7 @@ namespace Pitang.Sms.NetCore.Repositories
     {
         public Task<T> GetById(int id);
         public Task<List<T>> Get();
-        public T Post(T entity);
+        public void Post(T entity);
         public T Put(T entity);
         public void Delete(T entity);
     }

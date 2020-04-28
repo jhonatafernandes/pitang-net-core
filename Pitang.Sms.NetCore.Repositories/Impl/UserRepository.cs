@@ -32,11 +32,10 @@ namespace Pitang.Sms.NetCore.Repositories.Impl
             return users;
         }
 
-        public User Post(
+        public void Post(
             User model)
         {
-             _context.Users.Add(model);
-            return model;
+              _context.Users.Add(model);
         }
 
         public User Put(User model)

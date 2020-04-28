@@ -76,7 +76,7 @@ namespace sms_pitang_netcore.Controllers
                 return BadRequest(ModelState);
             }
 
-            var validateUser = await userService.GetUser(context, model.UserId);
+            var validateUser = await userService.GetById(model.UserId);
             if(validateUser == null)
             {
                 return BadRequest(new { message = "O usuário informado não existe" });

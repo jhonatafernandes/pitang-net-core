@@ -30,6 +30,7 @@
     <ProjectReference Include="..\Pitang.Sms.NetCore.Mapper\Pitang.Sms.NetCore.Mapper.csproj" />
     <ProjectReference Include="..\Pitang.Sms.NetCore.Repositories\Pitang.Sms.NetCore.Repositories.csproj" />
     <ProjectReference Include="..\Pitang.Sms.NetCore.Services\Pitang.Sms.NetCore.Services.csproj" />
+    <ProjectReference Include="..\Pitang.Sms.NetCore.UnitOfWork\Pitang.Sms.NetCore.UnitOfWork.csproj" />
   </ItemGroup>
 
 

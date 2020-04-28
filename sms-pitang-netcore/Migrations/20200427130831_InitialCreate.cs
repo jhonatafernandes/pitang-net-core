@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace sms_pitang_netcore.Migrations
 {
-    public partial class migrationInitial : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,9 +13,12 @@ namespace sms_pitang_netcore.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatedDate = table.Column<DateTime>(nullable: false),
+                    LastUpdateDate = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
                     Username = table.Column<string>(maxLength: 60, nullable: false),
                     Email = table.Column<string>(maxLength: 60, nullable: false),
-                    Password = table.Column<string>(maxLength: 60, nullable: false),
+                    Password = table.Column<string>(nullable: false),
                     ImageUrl = table.Column<string>(nullable: true),
                     Role = table.Column<string>(nullable: true)
                 },
@@ -30,6 +33,9 @@ namespace sms_pitang_netcore.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatedDate = table.Column<DateTime>(nullable: false),
+                    LastUpdateDate = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
                     Name = table.Column<string>(maxLength: 60, nullable: false),
                     OwnerId = table.Column<int>(nullable: false),
                     TargetId = table.Column<int>(nullable: false)
@@ -42,7 +48,7 @@ namespace sms_pitang_netcore.Migrations
                         column: x => x.OwnerId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Contacts_Users_TargetId",
                         column: x => x.TargetId,
@@ -57,6 +63,9 @@ namespace sms_pitang_netcore.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatedDate = table.Column<DateTime>(nullable: false),
+                    LastUpdateDate = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
                     Message = table.Column<string>(maxLength: 60, nullable: false),
                     UserOwnerId = table.Column<int>(nullable: false),
                     UserTargetId = table.Column<int>(nullable: false),
@@ -85,6 +94,9 @@ namespace sms_pitang_netcore.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatedDate = table.Column<DateTime>(nullable: false),
+                    LastUpdateDate = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
                     UserId = table.Column<int>(nullable: false),
                     Password = table.Column<string>(nullable: false),
                     Alteration = table.Column<DateTime>(nullable: false)
@@ -106,6 +118,9 @@ namespace sms_pitang_netcore.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatedDate = table.Column<DateTime>(nullable: false),
+                    LastUpdateDate = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
                     Message = table.Column<string>(maxLength: 60, nullable: true),
                     UserId = table.Column<int>(nullable: false),
                     Publicate = table.Column<DateTime>(nullable: false),
@@ -151,6 +166,18 @@ namespace sms_pitang_netcore.Migrations
                 name: "IX_Stories_UserId",
                 table: "Stories",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Username",
+                table: "Users",
+                column: "Username",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
