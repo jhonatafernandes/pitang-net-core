@@ -28,7 +28,7 @@ namespace Pitang.Sms.NetCore.Services
 
         public Task<dynamic> Put(
             int id,
-            PropertiesUserDto model
+            User model
            );
 
         public Task<dynamic> Delete(

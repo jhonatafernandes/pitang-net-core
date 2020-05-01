@@ -38,7 +38,7 @@ namespace Pitang.Sms.NetCore.Services
 
         enum ReturnType
         {
-            EmailInvalido,
+            EmailInvalido = 0,
             SenhaInvalida
         }
 
@@ -111,17 +111,17 @@ namespace Pitang.Sms.NetCore.Services
             }
             catch (DbUpdateException)
             {
-                return "Username ou email já existem!";
+                return new { message = "Username ou email já existem!" };
             }
             catch
             {
-                return "não foi possível criar um usuário, tente novamente!";
+                return new { message = "não foi possível criar um usuário, tente novamente!"};
             }
         }
 
         public async Task<dynamic> Put(
             int id,
-            PropertiesUserDto model)
+            User model)
         {
             try
             {
@@ -129,20 +129,8 @@ namespace Pitang.Sms.NetCore.Services
                 if (userFromBd == null)
                     return "O usuário não existe!";
 
-                foreach (var property in model.PropertiesToUpdate)
-                {
-                    var propertyInfo = typeof(User).GetProperty(property.PropertyName);
-                    var typeParameter = propertyInfo.GetType();
-
-                    //Olhar https://codereview.stackexchange.com/questions/126405/generic-extension-method-that-will-attempt-to-parse-a-string-and-return-its-val
-
-                    propertyInfo.SetValue(userFromBd, property.PropertyValue);
-                }
-
-                var user = _mapper.iMapper.Map<GetUserDto, User>(model);
-                user.Id = id;
-                var putUser = _repository.Put(user);
-                _repository.HistoricPassword(user);
+                var putUser = _repository.Put(model);
+                _repository.HistoricPassword(model);
                 _uow.Commit();
 
                 return putUser;

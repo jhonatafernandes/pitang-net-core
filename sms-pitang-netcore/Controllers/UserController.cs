@@ -30,7 +30,7 @@ namespace sms_pitang_netcore.Controllers
         {
             var users = await userService.Get();
 
-            if(users == null)
+            if(users.Count < 1)
             {
                 return NotFound(new { message = "Não há usuários cadastrados" });
             }
@@ -83,7 +83,7 @@ namespace sms_pitang_netcore.Controllers
         //[Authorize(Roles = "usuario")]
         public async Task<ActionResult<User>> Put(
            int id,
-           [FromBody] PropertiesUserDto model,
+           [FromBody] User model,
            [FromServices] IUserService userService)
         {
 
@@ -111,12 +111,17 @@ namespace sms_pitang_netcore.Controllers
 
             var user = await userService.Authenticate(model);
 
-            return user switch
+            Console.WriteLine("minha var é do tipo: {0}",user.GetType());
+            switch(user)
             {
-                1 => NotFound(new { message = "Email Inválido" }),
-                2 => NotFound(new { message = "Senha Inválida" }),
-                _ => Ok(user),
-            };
+                case 0:
+                    return NotFound(new { message = "Email Inválido" });
+                case 1:
+                    return NotFound(new { message = "Senha Inválida" });
+                default:
+                    return Ok(user);
+            }
+  
         }
 
         [HttpDelete]
